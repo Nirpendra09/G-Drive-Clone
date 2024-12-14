@@ -31,7 +31,13 @@ import {
 import { usePathname } from "next/navigation";
 import { FileDetails, ShareInput } from "@/components/ActionsModalContent";
 
-const ActionDropdown = ({ file }: { file: Models.Document }) => {
+const ActionDropdown = ({
+  file,
+  currentUser,
+}: {
+  file: Models.Document;
+  currentUser: any;
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [action, setAction] = useState<ActionType | null>(null);
@@ -40,6 +46,7 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
   const [emails, setEmails] = useState<string[]>([]);
 
   const path = usePathname();
+  const isOwner = file.accountId === currentUser.accountId;
 
   const closeAllModals = () => {
     setIsModalOpen(false);
@@ -86,13 +93,13 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
     if (!action) return null;
 
     const { value, label } = action;
-
     return (
-      <DialogContent className="shad-dialog button">
+      <DialogContent className="shad-dialog button w-full overflow-hidden flex flex-col">
         <DialogHeader className="flex flex-col gap-3">
-          <DialogTitle className="text-center text-light-100">
+          <DialogTitle className="text-center text-light-100 w-full text-wrap">
             {label}
           </DialogTitle>
+
           {value === "rename" && (
             <Input
               type="text"
@@ -111,7 +118,7 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
           {value === "delete" && (
             <p className="delete-confirmation">
               Are you sure you want to delete{` `}
-              <span className="delete-file-name">{file.name}</span>?
+              <span className="delete-file-name">{file.name}</span>&nbsp;?
             </p>
           )}
         </DialogHeader>
@@ -154,49 +161,58 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
             {file.name}
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          {actionsDropdownItems.map((actionItem) => (
-            <DropdownMenuItem
-              key={actionItem.value}
-              className="shad-dropdown-item"
-              onClick={() => {
-                setAction(actionItem);
+          {actionsDropdownItems.map((actionItem) => {
+            // if not owner, disable delete and share
+            if (
+              !isOwner &&
+              ["rename", "delete", "share"].includes(actionItem.value)
+            )
+              return null;
 
-                if (
-                  ["rename", "share", "delete", "details"].includes(
-                    actionItem.value
-                  )
-                ) {
-                  setIsModalOpen(true);
-                }
-              }}
-            >
-              {actionItem.value === "download" ? (
-                <Link
-                  href={constructDownloadUrl(file.bucketFileId)}
-                  download={file.name}
-                  className="flex items-center gap-2"
-                >
-                  <Image
-                    src={actionItem.icon}
-                    alt={actionItem.label}
-                    width={30}
-                    height={30}
-                  />
-                  {actionItem.label}
-                </Link>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <Image
-                    src={actionItem.icon}
-                    alt={actionItem.label}
-                    width={30}
-                    height={30}
-                  />
-                  {actionItem.label}
-                </div>
-              )}
-            </DropdownMenuItem>
-          ))}
+            return (
+              <DropdownMenuItem
+                key={actionItem.value}
+                className="shad-dropdown-item"
+                onClick={() => {
+                  setAction(actionItem);
+
+                  if (
+                    ["rename", "share", "delete", "details"].includes(
+                      actionItem.value
+                    )
+                  ) {
+                    setIsModalOpen(true);
+                  }
+                }}
+              >
+                {actionItem.value === "download" ? (
+                  <Link
+                    href={constructDownloadUrl(file.bucketFileId)}
+                    download={file.name}
+                    className="flex items-center gap-2"
+                  >
+                    <Image
+                      src={actionItem.icon}
+                      alt={actionItem.label}
+                      width={30}
+                      height={30}
+                    />
+                    {actionItem.label}
+                  </Link>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Image
+                      src={actionItem.icon}
+                      alt={actionItem.label}
+                      width={30}
+                      height={30}
+                    />
+                    {actionItem.label}
+                  </div>
+                )}
+              </DropdownMenuItem>
+            );
+          })}
         </DropdownMenuContent>
       </DropdownMenu>
 

@@ -8,10 +8,18 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
 const ImageThumbnail = ({ file }: { file: Models.Document }) => (
-  <div className="file-details-thumbnail">
+  <div className="file-details-thumbnail overflow-hidden">
     <Thumbnail type={file.type} extension={file.extension} url={file.url} />
-    <div className="flex flex-col">
-      <p className="subtitle-2 mb-1">{file.name}</p>
+    <div className="flex flex-col overflow-hidden">
+      <p
+        className="subtitle-2 mb-1"
+        style={{
+          display: "inline",
+          wordBreak: "break-all",
+        }}
+      >
+        {file.name}
+      </p>
       <FormattedDateTime date={file.$createdAt} className="caption" />
     </div>
   </div>
@@ -59,6 +67,7 @@ export const ShareInput = ({ file, onInputChange, onRemove }: Props) => {
           onChange={(e) => onInputChange(e.target.value.trim().split(","))}
           className="share-input-field"
         />
+
         <div className="pt-4">
           <div className="flex justify-between">
             <p className="subtitle-2 text-light-100">Shared with</p>
@@ -74,6 +83,7 @@ export const ShareInput = ({ file, onInputChange, onRemove }: Props) => {
                 className="flex items-center justify-between gap-2"
               >
                 <p className="subtitle-2">{email}</p>
+
                 <Button
                   onClick={() => onRemove(email)}
                   className="share-remove-user"

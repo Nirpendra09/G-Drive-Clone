@@ -263,6 +263,8 @@
   }
   .delete-file-name {
     @apply font-medium text-brand-100 !important;
+    display: inline;
+    word-break: break-all;
   }
   .modal-cancel-button {
     @apply h-[52px] flex-1 rounded-full bg-white text-light-100 hover:bg-transparent !important;

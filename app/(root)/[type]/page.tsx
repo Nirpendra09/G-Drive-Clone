@@ -5,6 +5,7 @@ import { Models } from "node-appwrite";
 import Card from "@/components/Card";
 import { getFileTypesParams } from "@/lib/utils";
 import Sort from "@/components/Sort";
+import { getCurrentUser } from "@/lib/actions/users.actions";
 
 const Page = async ({ searchParams, params }: SearchParamProps) => {
   const type = ((await params)?.type as string) || "";
@@ -14,6 +15,7 @@ const Page = async ({ searchParams, params }: SearchParamProps) => {
   const types = getFileTypesParams(type) as FileType[];
 
   const files = await getFiles({ types, searchText, sort });
+  const currentUser = await getCurrentUser();
 
   return (
     <div className="page-container">
@@ -37,7 +39,7 @@ const Page = async ({ searchParams, params }: SearchParamProps) => {
       {files.total > 0 ? (
         <section className="file-list">
           {files.documents.map((file: Models.Document) => (
-            <Card key={file.$id} file={file} />
+            <Card key={file.$id} file={file} currentUser={currentUser} />
           ))}
         </section>
       ) : (
